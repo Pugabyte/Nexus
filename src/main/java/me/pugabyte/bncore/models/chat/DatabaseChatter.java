@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 @Data
 @Entity("chatter")
 @NoArgsConstructor
-class DatabaseChatter {
+public class DatabaseChatter {
 	@Id
 	@NonNull
 	private UUID uuid;

@@ -28,8 +28,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.5.1</version>
                 <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
+                    <source>11</source>
+                    <target>11</target>
                 </configuration>
             </plugin>
             <plugin>
@@ -260,6 +260,14 @@
             <version>1</version>
             <scope>system</scope>
             <systemPath>${project.basedir}/libs/skDragon.jar</systemPath>
+        </dependency>
+        <!-- PremiumVanish -->
+        <dependency>
+            <groupId>de.myzelyam.premiumvanish.bukkit</groupId>
+            <artifactId>PremiumVanish</artifactId>
+            <version>2.5.11</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/libs/PremiumVanish-2.5.11.jar</systemPath>
         </dependency>
         <!-- EssentialsX -->
         <dependency>
