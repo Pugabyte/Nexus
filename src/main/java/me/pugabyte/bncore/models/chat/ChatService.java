@@ -37,3 +37,28 @@ public class ChatService extends MongoService {
 	}
 
 }
+
+
+/*
+public class ChatService extends MongoService {
+	@Getter
+	private final static Map<UUID, Chatter> cache = new HashMap<>();
+
+	public void clearCache() {
+		cache.clear();
+	}
+
+	@Override
+	public Chatter get(UUID uuid) {
+		cache.computeIfAbsent(uuid, $ -> {
+			Chatter chatter = database.createQuery(Chatter.class).field(_id).equal(uuid).first();
+			if (chatter == null)
+				return new Chatter(uuid);
+			return chatter;
+		});
+
+		return cache.get(uuid);
+	}
+
+}
+*/

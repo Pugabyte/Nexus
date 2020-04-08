@@ -35,7 +35,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>3.1.1</version>
+                <version>3.2.1</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -93,10 +93,6 @@
         <repository>
             <id>bn-repo</id>
             <url>http://maven.bnn.gg/repo/</url>
-        </repository>
-        <repository>
-            <id>bensku-repo</id>
-            <url>https://raw.githubusercontent.com/bensku/mvn-repo/master</url>
         </repository>
         <repository>
             <id>multiverse-repo</id>
@@ -189,8 +185,8 @@
         <!-- Morphia -->
         <dependency>
             <groupId>dev.morphia.morphia</groupId>
-            <artifactId>core</artifactId>
-            <version>1.5.8</version>
+            <artifactId>morphia-core</artifactId>
+            <version>2.0.0-BETA2</version>
         </dependency>
         <!-- cron4j -->
         <dependency>

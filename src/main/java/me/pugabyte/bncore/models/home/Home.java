@@ -1,15 +1,11 @@
 package me.pugabyte.bncore.models.home;
 
-import dev.morphia.annotations.Converters;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import me.pugabyte.bncore.framework.exceptions.postconfigured.InvalidInputException;
-import me.pugabyte.bncore.framework.persistence.serializer.mongodb.ItemStackConverter;
-import me.pugabyte.bncore.framework.persistence.serializer.mongodb.LocationConverter;
-import me.pugabyte.bncore.framework.persistence.serializer.mongodb.UUIDConverter;
 import me.pugabyte.bncore.models.PlayerOwnedObject;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
@@ -27,7 +23,6 @@ import static me.pugabyte.bncore.utils.StringUtils.colorize;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Converters({UUIDConverter.class, LocationConverter.class, ItemStackConverter.class})
 public class Home extends PlayerOwnedObject {
 	@NonNull
 	private UUID uuid;

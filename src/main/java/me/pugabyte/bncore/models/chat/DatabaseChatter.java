@@ -1,13 +1,11 @@
 package me.pugabyte.bncore.models.chat;
 
-import dev.morphia.annotations.Converters;
 import dev.morphia.annotations.Entity;
 import dev.morphia.annotations.Id;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import me.pugabyte.bncore.features.chat.ChatManager;
-import me.pugabyte.bncore.framework.persistence.serializer.mongodb.UUIDConverter;
 
 import java.util.HashSet;
 import java.util.List;
@@ -18,7 +16,6 @@ import java.util.stream.Collectors;
 @Data
 @Entity("chatter")
 @NoArgsConstructor
-@Converters(UUIDConverter.class)
 class DatabaseChatter {
 	@Id
 	@NonNull

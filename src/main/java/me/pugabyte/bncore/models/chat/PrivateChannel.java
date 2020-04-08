@@ -46,6 +46,11 @@ public class PrivateChannel implements Channel {
 				.collect(Collectors.toSet());
 	}
 
+	@ToString.Include
+	public Set<String> getRecipientsUuids() {
+		return recipients.stream().map(UUID::toString).collect(Collectors.toSet());
+	}
+
 	public Set<Chatter> getOthers(Chatter chatter) {
 		return recipients.stream()
 				.filter(uuid -> !uuid.equals(chatter.getUuid()))

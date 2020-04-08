@@ -18,8 +18,6 @@ public class MongoService {
 
 	static {
 		database = MongoDBPersistence.getConnection(MongoDBDatabase.BEARNATION);
-		if (database != null)
-			database.ensureIndexes();
 	}
 
 	public <T> T get(UUID uuid) {

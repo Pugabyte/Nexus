@@ -1,13 +1,11 @@
 package me.pugabyte.bncore.models.geoip;
 
 import com.google.gson.annotations.SerializedName;
-import dev.morphia.annotations.Converters;
 import dev.morphia.annotations.Entity;
 import dev.morphia.annotations.Id;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import me.pugabyte.bncore.framework.exceptions.postconfigured.InvalidInputException;
-import me.pugabyte.bncore.framework.persistence.serializer.mongodb.UUIDConverter;
 import me.pugabyte.bncore.models.PlayerOwnedObject;
 
 import java.util.ArrayList;
@@ -17,7 +15,6 @@ import java.util.UUID;
 @Data
 @Entity("geoip")
 @NoArgsConstructor
-@Converters(UUIDConverter.class)
 public class GeoIP extends PlayerOwnedObject {
 	@Id
 	private UUID uuid;
