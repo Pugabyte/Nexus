@@ -1,0 +1,146 @@
+package me.pugabyte.bearnation.server.features.homes;
+
+import me.pugabyte.bearnation.api.framework.commands.models.CustomCommand;
+import me.pugabyte.bearnation.api.framework.commands.models.annotations.Async;
+import me.pugabyte.bearnation.api.framework.commands.models.annotations.Path;
+import me.pugabyte.bearnation.api.framework.commands.models.annotations.Permission;
+import me.pugabyte.bearnation.api.framework.commands.models.events.CommandEvent;
+import me.pugabyte.bearnation.api.utils.Tasks;
+import me.pugabyte.bearnation.features.menus.MenuUtils.ConfirmationMenu;
+import me.pugabyte.bearnation.server.models.home.Home;
+import me.pugabyte.bearnation.server.models.home.HomeOwner;
+import me.pugabyte.bearnation.server.models.home.HomeService;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.World;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
+
+@Permission("homes.use")
+public class HomesCommand extends CustomCommand {
+	HomeService service = new HomeService();
+	HomeOwner homeOwner;
+
+	public HomesCommand(CommandEvent event) {
+		super(event);
+		if (isPlayer())
+			homeOwner = service.get(player());
+	}
+
+	@Path
+	void list() {
+		List<Home> filtered = homeOwner.getHomes();
+		if (isPlayer())
+			filtered = filtered.stream().filter(home -> home.hasAccess(player())).collect(Collectors.toList());
+		if (filtered.size() == 0)
+			error(homeOwner.getOfflinePlayer().getName() + " has no available homes");
+
+		send(PREFIX + filtered.stream().map(home -> (home.isLocked() ? "&c" : "&3") + home.getName())
+				.collect(Collectors.joining("&e, ")));
+	}
+
+	@Path("<player>")
+	void list(OfflinePlayer player) {
+		homeOwner = service.get(player);
+		list();
+	}
+
+	@Path("edit [home]")
+	void edit(Home home) {
+		if (home == null)
+			HomesMenu.edit(homeOwner);
+		else
+			HomesMenu.edit(home);
+	}
+
+	@Path("limit")
+	void limit() {
+		int homes = homeOwner.getHomes().size();
+		int max = homeOwner.getMaxHomes();
+		int left = Math.max(0, max - homes);
+		send(PREFIX + "You have set &e" + homes + " &3of your &e" + max + " &3homes");
+		if (left > 0)
+			send(PREFIX + "You can set &e" + left + " &3more");
+		else
+			send(PREFIX + "&cYou have used all of your available homes! &3To set more homes, you will need to either &erank up &3or &c/donate");
+	}
+
+	@Path("reload")
+	@Permission("group.seniorstaff")
+	void reload() {
+		service.clearCache();
+	}
+
+	private static final List<Home> deleted = new ArrayList<>();
+
+	@Permission("group.admin")
+	@Path("deleteFromWorld <world>")
+	void deleteFromWorld(World world) {
+		ConfirmationMenu.builder()
+				.onConfirm(e -> Tasks.async(() -> {
+					deleted.clear();
+					List<HomeOwner> all = service.getAll();
+					all.forEach(homeOwner -> {
+						homeOwner.getHomes().stream().filter(home ->
+							home.getLocation() == null || home.getLocation().getWorld() == null || home.getLocation().getWorld().equals(world)
+						).forEach(home -> {
+							deleted.add(home);
+							send(homeOwner.getOfflinePlayer().getName() + " / " + home.getName());
+						});
+
+						deleted.forEach(homeOwner::delete);
+						// MongoDB no longer recognizes the homes after serialization so it can't merge the deletions
+						// Easy workaround is to delete the entire homeowner and re-save it
+						service.deleteSync(homeOwner);
+						service.saveSync(homeOwner);
+					});
+
+					send(json(PREFIX + "Deleted &e" + deleted.size() + " &3homes from null worlds or world &e" + world.getName() + "&3. ")
+							.next("&eClick here &3to restore them").command("/homes restoreDeleted"));
+				}))
+				.open(player());
+	}
+
+	@Permission("group.admin")
+	@Path("restoreDeleted")
+	void restoreDeleted() {
+		ConfirmationMenu.builder()
+				.onConfirm(e -> Tasks.async(() -> {
+					deleted.forEach(home -> {
+						home.getOwner().add(home);
+						service.save(home.getOwner());
+					});
+
+					send(PREFIX + "Restored &e" + deleted.size() + " &3homes");
+					deleted.clear();
+				}))
+				.open(player());
+	}
+
+	@Async
+	@Permission("group.admin")
+	@Path("fixHomeOwner")
+	void fixHomeOwner() {
+		AtomicInteger fixed = new AtomicInteger(0);
+		List<HomeOwner> all = service.getAll();
+		all.forEach(homeOwner -> {
+			List<Home> collect = homeOwner.getHomes().stream().filter(home ->
+					!homeOwner.getUuid().equals(home.getUuid())
+			).collect(Collectors.toList());
+
+			if (collect.isEmpty()) return;
+
+			fixed.getAndAdd(collect.size());
+
+			send(PREFIX + "Fixing " + collect.size() + " homes for " + homeOwner.getOfflinePlayer().getName());
+
+			collect.forEach(home -> home.setUuid(homeOwner.getUuid()));
+			service.saveSync(homeOwner);
+		});
+
+		send(PREFIX + "Fixed " + fixed.get() + " homes");
+	}
+
+}

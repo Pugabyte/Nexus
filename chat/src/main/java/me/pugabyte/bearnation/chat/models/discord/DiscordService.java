@@ -1,0 +1,44 @@
+package me.pugabyte.bearnation.chat.models.discord;
+
+import me.pugabyte.bearnation.api.framework.persistence.service.MySQLService;
+import org.bukkit.plugin.Plugin;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+public class DiscordService extends MySQLService {
+	private static final Map<String, DiscordUser> cache = new HashMap<>();
+
+	public DiscordService(Plugin plugin) {
+		super(plugin);
+	}
+
+	public static void clearCache() {
+		cache.clear();
+	}
+
+	@Override
+	public DiscordUser get(String uuid) {
+		cache.computeIfAbsent(uuid, $ -> {
+			DiscordUser user = database.where("uuid = ?", uuid).first(DiscordUser.class);
+			if (user.getUuid() == null)
+				return new DiscordUser(uuid);
+			return user;
+		});
+
+		return cache.get(uuid);
+	}
+
+	public DiscordUser getFromUserId(String userId) {
+		DiscordUser user = database.where("userId = ?", userId).first(DiscordUser.class);
+		if (user.getUuid() == null)
+			return null;
+		return user;
+	}
+
+	public List<DiscordUser> getAll() {
+		return database.results(DiscordUser.class);
+	}
+
+}

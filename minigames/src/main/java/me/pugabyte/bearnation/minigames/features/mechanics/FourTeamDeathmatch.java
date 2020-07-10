@@ -1,0 +1,34 @@
+package me.pugabyte.bearnation.minigames.features.mechanics;
+
+import me.pugabyte.bearnation.minigames.features.models.events.matches.minigamers.MinigamerDeathEvent;
+import me.pugabyte.bearnation.minigames.features.models.mechanics.multiplayer.teams.BalancedTeamMechanic;
+import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
+
+public final class FourTeamDeathmatch extends BalancedTeamMechanic {
+
+	@Override
+	public String getName() {
+		return "Four Team Deathmatch";
+	}
+
+	@Override
+	public String getDescription() {
+		return "Kill the other teams";
+	}
+
+	@Override
+	public ItemStack getMenuItem() {
+		return new ItemStack(Material.DIAMOND_SWORD);
+	}
+
+	@Override
+	public void onDeath(MinigamerDeathEvent event) {
+		if (event.getAttacker() != null) {
+			event.getAttacker().scored();
+			event.getAttacker().getMatch().scored(event.getAttacker().getTeam());
+		}
+		super.onDeath(event);
+	}
+
+}

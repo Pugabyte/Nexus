@@ -1,0 +1,39 @@
+package me.pugabyte.bearnation.server.features.commands.staff;
+
+import lombok.NonNull;
+import me.pugabyte.bearnation.api.framework.commands.models.CustomCommand;
+import me.pugabyte.bearnation.api.framework.commands.models.annotations.Aliases;
+import me.pugabyte.bearnation.api.framework.commands.models.annotations.Path;
+import me.pugabyte.bearnation.api.framework.commands.models.events.CommandEvent;
+import me.pugabyte.bearnation.api.framework.exceptions.preconfigured.NoPermissionException;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.event.block.BlockBreakEvent;
+
+@Aliases("fuck")
+public class BreakCommand extends CustomCommand {
+
+	public BreakCommand(@NonNull CommandEvent event) {
+		super(event);
+	}
+
+	@Path
+	void fuck() {
+		if (player().hasPermission("group.staff")) {
+			Block block = player().getTargetBlockExact(500);
+			if (block == null || block.getType() == Material.AIR)
+				error("No block found");
+
+			final BlockBreakEvent event = new BlockBreakEvent(block, player());
+			if (!event.callEvent())
+				error("Cannot break that block");
+
+			block.setType(Material.AIR);
+		} else
+			if ("fuck".equalsIgnoreCase(getAliasUsed()))
+				send("&4rude.");
+			else
+				throw new NoPermissionException();
+	}
+
+}

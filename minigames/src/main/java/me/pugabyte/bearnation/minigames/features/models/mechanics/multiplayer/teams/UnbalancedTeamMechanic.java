@@ -1,0 +1,75 @@
+package me.pugabyte.bearnation.minigames.features.models.mechanics.multiplayer.teams;
+
+import me.pugabyte.bearnation.api.utils.RandomUtils;
+import me.pugabyte.bearnation.minigames.Minigames;
+import me.pugabyte.bearnation.minigames.features.models.Arena;
+import me.pugabyte.bearnation.minigames.features.models.Match;
+import me.pugabyte.bearnation.minigames.features.models.Minigamer;
+import me.pugabyte.bearnation.minigames.features.models.Team;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import static me.pugabyte.bearnation.api.utils.Utils.attempt;
+
+public abstract class UnbalancedTeamMechanic extends TeamMechanic {
+
+	@Override
+	public void balance(List<Minigamer> minigamers) {
+		if (minigamers.size() == 0)
+			return;
+
+		Match match = minigamers.get(0).getMatch();
+		Arena arena = match.getArena();
+		List<Team> teams = new ArrayList<>(arena.getTeams());
+
+		int totalBalancePercentage = 0;
+		for (Team team : teams)
+			totalBalancePercentage += team.getBalancePercentage();
+
+		if (totalBalancePercentage != 100) {
+			Minigames.warn("The total balance percentage between all the teams on arena " + arena.getDisplayName() +
+					" does not equal 100! Please check your configs.");
+		}
+
+		Collections.shuffle(minigamers);
+
+		int required = 0;
+		for (Team team : teams) required += team.getMinPlayers();
+
+		if (minigamers.size() < required) {
+			String message = "Not enough players to meet team requirements!";
+			Minigames.severe(message);
+			match.broadcast("&c" + message);
+			match.end();
+			return;
+		}
+
+		for (Team team : teams)
+			while (team.getMinigamers(match).size() < team.getMinPlayers()) {
+				Minigamer minigamer = RandomUtils.randomElement(match.getUnassignedPlayers());
+				if (minigamer.getTeam() == null)
+					minigamer.setTeam(team);
+			}
+
+		for (Minigamer minigamer : minigamers) {
+			attempt(50, () -> {
+				Collections.shuffle(teams);
+				for (Team team : teams)
+					if (team.getMaxPlayers() < 0 || team.getMinigamers(match).size() < team.getMaxPlayers())
+						if (RandomUtils.chanceOf(team.getBalancePercentage())) {
+							minigamer.setTeam(team);
+							return true;
+						}
+				return false;
+			});
+
+			if (minigamer.getTeam() == null) {
+				minigamer.tell("Could not assign you to a team!");
+				minigamer.quit();
+			}
+		}
+	}
+
+}
