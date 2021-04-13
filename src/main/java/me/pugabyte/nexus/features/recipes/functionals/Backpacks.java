@@ -215,7 +215,8 @@ public class Backpacks extends FunctionalRecipe {
 			inv.setContents(originalItems);
 			this.inv = inv;
 			player.openInventory(inv);
-			Nexus.registerListener(this);
+
+			Nexus.registerTempListener(this);
 		}
 
 		public void saveContents(ItemStack[] contents) {
@@ -277,9 +278,9 @@ public class Backpacks extends FunctionalRecipe {
 		@EventHandler
 		public void onInventoryClose(InventoryCloseEvent event) {
 			if (player != event.getPlayer()) return;
-			Nexus.unregisterListener(this);
 			ItemStack[] contents = event.getView().getTopInventory().getContents();
 			saveContents(contents);
+			Nexus.unregisterTempListener(this);
 		}
 	}
 
