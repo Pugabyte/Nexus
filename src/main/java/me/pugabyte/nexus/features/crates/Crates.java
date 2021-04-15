@@ -7,6 +7,7 @@ import me.pugabyte.nexus.features.commands.staff.admin.RebootCommand;
 import me.pugabyte.nexus.features.crates.menus.CrateEditMenu;
 import me.pugabyte.nexus.features.crates.models.CrateLoot;
 import me.pugabyte.nexus.features.crates.models.CrateType;
+import me.pugabyte.nexus.features.crates.models.VirtualCrate;
 import me.pugabyte.nexus.features.crates.models.exceptions.CrateOpeningException;
 import me.pugabyte.nexus.framework.annotations.Environments;
 import me.pugabyte.nexus.framework.features.Feature;
@@ -125,6 +126,23 @@ public class Crates extends Feature implements Listener {
 
 		if (RebootCommand.isQueued())
 			throw new CrateOpeningException("Server reboot is queued, cannot open crates");
+
+		if (locationType.getCrateClass() instanceof VirtualCrate) {
+			VirtualCrate virtualCrate = (VirtualCrate) locationType.getCrateClass();
+			if (virtualCrate.getCrateAmount(event.getPlayer()) > 0) {
+				try {
+					if (event.getPlayer().isSneaking())
+						virtualCrate.openMultiple(location, event.getPlayer(), virtualCrate.getCrateAmount(event.getPlayer()));
+					else
+						virtualCrate.openCrate(location, event.getPlayer());
+				} catch (CrateOpeningException ex) {
+					if (ex.getMessage() != null)
+						PlayerUtils.send(event.getPlayer(), Crates.PREFIX + ex.getMessage());
+					virtualCrate.reset();
+				}
+			}
+			return;
+		}
 
 		CrateType keyType = CrateType.fromKey(event.getItem());
 		if (locationType != keyType && locationType != CrateType.ALL)

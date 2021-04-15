@@ -23,7 +23,8 @@ public enum CrateType {
 	MYSTERY(new MysteryCrate(), new Location(Bukkit.getWorld("survival"), 11.00, 15.00, 8.00, .00F, .00F)),
 	WEEKLY_WAKKA(new WeeklyWakkaCrate(), new Location(Bukkit.getWorld("survival"), 15.00, 15.00, -8.00, .00F, .00F)),
 	FEB_VOTE_REWARD(new FebVoteRewardCrate(), new Location(Bukkit.getWorld("survival"), -12.00, 15.00, 9.00, .00F, .00F)),
-	BOSS(new BossCrate(), new Location(Bukkit.getWorld("survival"), -9.00, 15.00, 12.00, .00F, .00F));
+	BOSS(new BossCrate(), new Location(Bukkit.getWorld("survival"), -9.00, 15.00, 12.00, .00F, .00F)),
+	MINIGAME(new MinigameCrate(), null);
 
 	Crate crateClass;
 	Location location;
